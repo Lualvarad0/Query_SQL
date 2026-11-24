@@ -6,7 +6,7 @@
    de nuevo (y perder los datos), la modificamos.
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 -- 2.1 Agregar columnas.

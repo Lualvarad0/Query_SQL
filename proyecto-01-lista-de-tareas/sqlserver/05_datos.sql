@@ -4,7 +4,7 @@
    Fecha de referencia ("hoy") para todo el proyecto: 2026-11-23.
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 -- Usuarios. 'Pedro Sin Listas' no tiene listas (para practicar LEFT JOIN).

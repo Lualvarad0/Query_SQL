@@ -6,7 +6,7 @@
    "Hoy" = 2026-11-23 (en la app sería CAST(GETDATE() AS DATE)).
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 -- 6.1 Pantalla de inicio: las listas de un usuario con cuántas tareas pendientes tiene cada una.

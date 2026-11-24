@@ -5,7 +5,7 @@
    tiene varias tareas:   Usuario 1──* Lista 1──* Tarea
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 CREATE TABLE Usuario (

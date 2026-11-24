@@ -1,10 +1,10 @@
 /* =====================================================================
-   PASO 9 · Soluciones de ../ejercicios.sql (SQL Server)
-   La versión PostgreSQL está en ../postgresql/09_soluciones.sql
-   "Hoy" = 2026-11-23. Corre después de los pasos 1 a 5.
+   SOLUCIONES de ../ejercicios.sql (SQL Server)
+   La versión PostgreSQL está en ../postgresql/12_soluciones.sql
+   "Hoy" = 2026-11-23. Del 1 al 15: después de los pasos 1 a 5. Del 16 al 19: después del paso 9.
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 DECLARE @hoy DATE = '2026-11-23';   -- las variables viven hasta el siguiente GO: este archivo no usa GO
@@ -124,4 +124,46 @@ LEFT JOIN Tarea t ON t.idLista = l.idLista
                  AND t.fechaLimite BETWEEN @hoy AND DATEADD(DAY, 7, @hoy)
 GROUP BY u.idUsuario, u.nombre
 ORDER BY tareas_semana DESC, u.nombre;
+GO
+
+/* =====================================================================
+   Ejercicios 16 a 19 (necesitan el paso 9)
+   ===================================================================== */
+
+-- 16. Tareas con subtareas: cuántas, cuántas hechas y si se puede cerrar.
+SELECT p.idTarea, p.nombre AS tarea,
+       COUNT(h.idTarea) AS subtareas,
+       SUM(CASE WHEN h.completada = 1 THEN 1 ELSE 0 END) AS hechas,
+       CASE WHEN SUM(CASE WHEN h.completada = 1 THEN 0 ELSE 1 END) = 0
+            THEN 'LISTA PARA CERRAR'
+            ELSE 'FALTAN ' + CAST(SUM(CASE WHEN h.completada = 1 THEN 0 ELSE 1 END) AS VARCHAR(5))
+       END AS estado
+FROM Tarea p
+INNER JOIN Tarea h ON h.idTareaPadre = p.idTarea
+GROUP BY p.idTarea, p.nombre;
+GO
+
+-- 17. Listas que ve cada usuario, con su acceso.
+SELECT u.nombre AS usuario, l.nombre AS lista, 'DUEÑO' AS acceso
+FROM Usuario u INNER JOIN Lista l ON l.idUsuario = u.idUsuario
+UNION ALL
+SELECT u.nombre, l.nombre, lc.permiso
+FROM ListaCompartida lc
+INNER JOIN Usuario u ON u.idUsuario = lc.idUsuario
+INNER JOIN Lista l   ON l.idLista   = lc.idLista
+ORDER BY usuario, lista;
+GO
+
+-- 18. COUNT(*) cuenta la fila que agrega el LEFT JOIN aunque venga llena de NULL.
+--     Se cuenta una columna de la tabla de la derecha: COUNT ignora los NULL.
+SELECT l.nombre, COUNT(t.idTarea) AS tareas
+FROM Lista l LEFT JOIN Tarea t ON t.idLista = l.idLista
+GROUP BY l.idLista, l.nombre;
+GO
+
+-- 19. idTareaPadre tiene NULLs: "x NOT IN (..., NULL)" nunca es verdadero.
+--     NOT EXISTS no tiene ese problema (otra opción: filtrar WHERE idTareaPadre IS NOT NULL).
+SELECT t.idTarea, t.nombre
+FROM Tarea t
+WHERE NOT EXISTS (SELECT 1 FROM Tarea h WHERE h.idTareaPadre = t.idTarea);
 GO

@@ -7,7 +7,7 @@
    (Es el mismo patrón que MenuRol en el proyecto de ventas.)
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 CREATE TABLE Etiqueta (

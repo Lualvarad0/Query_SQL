@@ -1,7 +1,7 @@
 /* =====================================================================
    PASO 1 · La versión original (SQL Server)
 
-   Es el mismo Query.txt del proyecto, ordenado y con GO entre cada lote.
+   Es el script original del proyecto (antes Query.txt), ordenado y con GO entre cada lote.
    Una sola tabla con dos columnas: así empiezan muchos proyectos.
    En los pasos siguientes la base CRECE con ALTER TABLE, como pasa en
    un proyecto real, sin borrar los datos que ya existen.
@@ -10,17 +10,17 @@
 USE master;
 GO
 
-IF DB_ID('DBAngular') IS NOT NULL
+IF DB_ID('DBTareas') IS NOT NULL
 BEGIN
-    ALTER DATABASE DBAngular SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE DBAngular;
+    ALTER DATABASE DBTareas SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE DBTareas;
 END
 GO
 
-CREATE DATABASE DBAngular;
+CREATE DATABASE DBTareas;
 GO
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 CREATE TABLE Tarea (

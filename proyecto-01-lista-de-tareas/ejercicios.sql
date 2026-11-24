@@ -1,9 +1,11 @@
 -- =====================================================================
--- EJERCICIOS · Lista de Tareas (DBAngular)
--- Funcionan con la base de sqlserver/ o de postgresql/ (después de los pasos 1 a 5).
+-- EJERCICIOS · Lista de Tareas (DBTareas)
+-- Funcionan con la base de sqlserver/ o de postgresql/. Del 1 al 15: después de los pasos 1 a 5.
+-- Del 16 al 19: después del paso 9 (subtareas y listas compartidas).
 -- "Hoy" = 2026-11-23. Escribe tu consulta debajo de cada enunciado.
--- Soluciones: sqlserver/09_soluciones.sql y postgresql/09_soluciones.sql
--- Niveles: 1 a 6 JOINs y NULL · 7 a 11 agrupaciones · 12 a 15 funciones de ventana y retos.
+-- Soluciones: sqlserver/12_soluciones.sql y postgresql/12_soluciones.sql
+-- Niveles: 1 a 6 JOINs y NULL · 7 a 11 agrupaciones · 12 a 15 funciones de ventana y retos
+--          16 y 17 relaciones del paso 9 · 18 y 19 "arregla la consulta" (errores del paso 11).
 -- =====================================================================
 
 -- 1. Todas las tareas con el nombre de su lista y del dueño de la lista.
@@ -79,3 +81,40 @@
 -- 15. RETO · Carga de la próxima semana: por cada usuario, cuántas tareas pendientes vencen entre
 --     hoy y dentro de 7 días, y cuáles son. Deben salir los 4 usuarios.
 --    Resultado esperado: 4 filas
+
+
+
+-- =====================================================================
+-- Ejercicios del paso 9 en adelante
+-- =====================================================================
+
+-- 16. Cada tarea que tiene subtareas: cuántas subtareas tiene, cuántas están hechas
+--     y si ya se puede cerrar (todas hechas = 'LISTA PARA CERRAR', si no 'FALTAN n').
+--    Resultado esperado: 2 filas
+
+
+
+-- 17. Para cada usuario, todas las listas que puede ver (propias y compartidas) y con qué
+--     acceso ('DUEÑO', 'LEER' o 'EDITAR'). Debe salir también Pedro.
+--    Resultado esperado: 10 filas
+
+
+
+-- 18. ARREGLA LA CONSULTA. Debería mostrar las 6 listas con su número de tareas, pero
+--     "Viaje a Cuenca" (que está vacía) sale con 1. ¿Por qué? Corrígela.
+--
+--     SELECT l.nombre, COUNT(*) AS tareas
+--     FROM Lista l LEFT JOIN Tarea t ON t.idLista = l.idLista
+--     GROUP BY l.idLista, l.nombre;
+--
+--    Resultado esperado: 6 filas (Viaje a Cuenca con 0)
+
+
+
+-- 19. ARREGLA LA CONSULTA. Debería devolver las tareas que NO tienen subtareas, pero
+--     devuelve 0 filas y no da ningún error. ¿Por qué? Corrígela.
+--
+--     SELECT idTarea, nombre FROM Tarea
+--     WHERE idTarea NOT IN (SELECT idTareaPadre FROM Tarea);
+--
+--    Resultado esperado: 23 filas

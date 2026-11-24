@@ -1,7 +1,7 @@
 -- =====================================================================
--- PASO 9 · Soluciones de ../ejercicios.sql (PostgreSQL)
--- La versión SQL Server está en ../sqlserver/09_soluciones.sql
--- "Hoy" = 2026-11-23. Corre después de los pasos 1 a 5.
+-- SOLUCIONES de ../ejercicios.sql (PostgreSQL)
+-- La versión SQL Server está en ../sqlserver/12_soluciones.sql
+-- "Hoy" = 2026-11-23. Del 1 al 15: después de los pasos 1 a 5. Del 16 al 19: después del paso 9.
 -- =====================================================================
 
 -- 1. Todas las tareas con el nombre de su lista y del dueño de la lista.
@@ -119,3 +119,39 @@ LEFT JOIN Tarea t ON t.idLista = l.idLista
                  AND t.fechaLimite BETWEEN DATE '2026-11-23' AND DATE '2026-11-23' + 7
 GROUP BY u.idUsuario, u.nombre
 ORDER BY tareas_semana DESC, u.nombre;
+
+-- =====================================================================
+-- Ejercicios 16 a 19 (necesitan el paso 9)
+-- =====================================================================
+
+-- 16. Tareas con subtareas: cuántas, cuántas hechas y si se puede cerrar.
+SELECT p.idTarea, p.nombre AS tarea,
+       COUNT(h.idTarea) AS subtareas,
+       COUNT(*) FILTER (WHERE h.completada) AS hechas,
+       CASE WHEN COUNT(*) FILTER (WHERE NOT h.completada) = 0
+            THEN 'LISTA PARA CERRAR'
+            ELSE 'FALTAN ' || COUNT(*) FILTER (WHERE NOT h.completada)
+       END AS estado
+FROM Tarea p
+JOIN Tarea h ON h.idTareaPadre = p.idTarea
+GROUP BY p.idTarea, p.nombre;
+
+-- 17. Listas que ve cada usuario, con su acceso.
+SELECT u.nombre AS usuario, l.nombre AS lista, 'DUEÑO' AS acceso
+FROM Usuario u JOIN Lista l ON l.idUsuario = u.idUsuario
+UNION ALL
+SELECT u.nombre, l.nombre, lc.permiso
+FROM ListaCompartida lc
+JOIN Usuario u ON u.idUsuario = lc.idUsuario
+JOIN Lista l   ON l.idLista   = lc.idLista
+ORDER BY usuario, lista;
+
+-- 18. COUNT(*) cuenta la fila vacía del LEFT JOIN; COUNT(columna) ignora los NULL.
+SELECT l.nombre, COUNT(t.idTarea) AS tareas
+FROM Lista l LEFT JOIN Tarea t ON t.idLista = l.idLista
+GROUP BY l.idLista, l.nombre;
+
+-- 19. NOT IN con NULLs nunca es verdadero: se usa NOT EXISTS.
+SELECT t.idTarea, t.nombre
+FROM Tarea t
+WHERE NOT EXISTS (SELECT 1 FROM Tarea h WHERE h.idTareaPadre = t.idTarea);

@@ -4,7 +4,7 @@
    "Hoy" = 2026-11-23.
    ===================================================================== */
 
-USE DBAngular;
+USE DBTareas;
 GO
 
 -- 7.1 Progreso de cada lista: total, completadas y porcentaje (incluye listas vacías).
