@@ -9,8 +9,8 @@ PostgreSQL, comparando siempre con SQL Server.
 |---|---|
 | [`postgresql/`](postgresql/) | **La ruta de aprendizaje**: base de datos de práctica y 10 módulos con ejercicios y soluciones |
 | [`docs/`](docs/) | Guía de diferencias entre PostgreSQL y SQL Server |
-| [`proyecto-VENTASANGULAR/`](proyecto-VENTASANGULAR/) | **Proyecto Sistema de Ventas** en 6 pasos: tablas, datos, SQL de cada pantalla, procedimientos, vistas y 16 ejercicios (SQL Server y PostgreSQL) |
-| [`ScriptSQL_proyectoLISTA-TAREAS/`](ScriptSQL_proyectoLISTA-TAREAS/) | **Proyecto Lista de Tareas** en 9 pasos: de 1 tabla a 5 con `ALTER TABLE`, consultas de la app, reportes, trigger y 15 ejercicios (SQL Server y PostgreSQL) |
+| [`proyecto-01-lista-de-tareas/`](proyecto-01-lista-de-tareas/) | **Proyecto 01 · Lista de Tareas**: de 1 tabla a 7 con `ALTER TABLE`, todos los tipos de relación, trigger, seguridad (claves, permisos, seguridad por fila, inyección SQL), errores comunes y 19 ejercicios |
+| [`proyecto-02-sistema-de-ventas/`](proyecto-02-sistema-de-ventas/) | **Proyecto 02 · Sistema de Ventas**: el SQL de cada pantalla, procedimientos, vistas, clientes y proveedores, seguridad, errores comunes y 22 ejercicios |
 
 ## La ruta, paso a paso
 
@@ -40,3 +40,17 @@ Cada módulo es una carpeta con tres archivos: `README.md` (la teoría corta),
    psql -d dbventa -f postgresql/00_base_de_datos/instalar.sql
    ```
 3. Abre `postgresql/01_select_basico/ejercicios.sql` y empieza.
+
+## Los dos proyectos
+
+Además de la ruta, hay dos proyectos completos para aprender con algo real. Cada paso está
+en **SQL Server** y en **PostgreSQL**, con los mismos resultados.
+
+| Orden | Proyecto | Por qué en ese orden |
+|---|---|---|
+| 1 | [Lista de Tareas](proyecto-01-lista-de-tareas/) | Empieza con una sola tabla y la hace crecer: ves nacer cada relación |
+| 2 | [Sistema de Ventas](proyecto-02-sistema-de-ventas/) | Un modelo más grande, con plata de por medio: totales, stock, permisos por rol |
+
+Los dos terminan con un paso de **seguridad** (qué acepta una tabla mal hecha, claves con
+hash, permisos, inyección SQL) y otro de **errores comunes**: lo que la base de datos
+rechaza, con el mensaje que da, y lo que acepta en silencio aunque el resultado esté mal.
