@@ -9,8 +9,8 @@ PostgreSQL, comparando siempre con SQL Server.
 |---|---|
 | [`postgresql/`](postgresql/) | **La ruta de aprendizaje**: base de datos de práctica y 10 módulos con ejercicios y soluciones |
 | [`docs/`](docs/) | Guía de diferencias entre PostgreSQL y SQL Server |
-| [`proyecto-VENTASANGULAR/`](proyecto-VENTASANGULAR/) | Base `DBVENTA` original del sistema de ventas en Angular (SQL Server) |
-| [`ScriptSQL_proyectoLISTA-TAREAS/`](ScriptSQL_proyectoLISTA-TAREAS/) | Base del proyecto Lista de Tareas (SQL Server) |
+| [`proyecto-VENTASANGULAR/`](proyecto-VENTASANGULAR/) | **Proyecto Sistema de Ventas** en 6 pasos: tablas, datos, SQL de cada pantalla, procedimientos, vistas y 16 ejercicios (SQL Server y PostgreSQL) |
+| [`ScriptSQL_proyectoLISTA-TAREAS/`](ScriptSQL_proyectoLISTA-TAREAS/) | **Proyecto Lista de Tareas** en 9 pasos: de 1 tabla a 5 con `ALTER TABLE`, consultas de la app, reportes, trigger y 15 ejercicios (SQL Server y PostgreSQL) |
 
 ## La ruta, paso a paso
 
