@@ -1,7 +1,8 @@
 # PostgreSQL vs SQL Server (T-SQL)
 
-Guía rápida con ejemplos tomados de este mismo repo. Los scripts originales de
-`proyecto-VENTASANGULAR/` están en SQL Server; la versión en `postgresql/` es la traducción.
+Guía rápida con ejemplos tomados de este mismo repo. Los dos proyectos
+(`proyecto-01-lista-de-tareas/` y `proyecto-02-sistema-de-ventas/`) tienen cada paso en
+`sqlserver/` y en `postgresql/`, así que puedes comparar archivo con archivo.
 
 ## Lo más importante: los JOINs son iguales
 

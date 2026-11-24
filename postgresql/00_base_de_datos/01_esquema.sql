@@ -1,7 +1,7 @@
 -- =====================================================================
 -- 01_esquema.sql · Base de datos DBVENTA en PostgreSQL
 --
--- Es la base de proyecto-VENTASANGULAR (SQL Server) ampliada con clientes,
+-- Es la base de proyecto-02-sistema-de-ventas (SQL Server) ampliada con clientes,
 -- ciudades, proveedores, vendedores, costos e impuestos, para que las
 -- consultas se parezcan a las de un sistema de ventas real.
 --

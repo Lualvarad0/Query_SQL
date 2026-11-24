@@ -1,7 +1,7 @@
 # 00 · La base de datos de práctica
 
 `DBVENTA` es la base del proyecto de ventas en Angular
-([`proyecto-VENTASANGULAR`](../../proyecto-VENTASANGULAR/)), traducida a PostgreSQL y
+([`proyecto-02-sistema-de-ventas`](../../proyecto-02-sistema-de-ventas/)), traducida a PostgreSQL y
 ampliada para que las consultas se parezcan a las de un sistema real.
 
 ## Instalar
