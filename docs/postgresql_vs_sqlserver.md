@@ -6,7 +6,7 @@ Guía rápida con ejemplos tomados de este mismo repo. Los scripts originales de
 ## Lo más importante: los JOINs son iguales
 
 `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL OUTER JOIN` y `CROSS JOIN` se escriben
-exactamente igual en los dos motores. Lo que aprendas en `postgresql/02_ejercicios_joins.sql`
+exactamente igual en los dos motores. Lo que aprendas en `postgresql/04_joins/`
 te sirve tal cual en SQL Server. Las diferencias están alrededor: tipos de datos, funciones,
 límites de filas y algunos extras.
 
@@ -86,6 +86,18 @@ CREATE TABLE Rol (
 - SQL Server usa T-SQL: variables `DECLARE @x INT`, `IF`, `WHILE`, `CREATE PROCEDURE` directamente.
 - PostgreSQL usa PL/pgSQL dentro de `CREATE FUNCTION` / `CREATE PROCEDURE ... LANGUAGE plpgsql`,
   o bloques anónimos `DO $$ ... $$;`. Las variables no llevan `@`.
+
+## Triggers
+
+| | PostgreSQL | SQL Server |
+|---|---|---|
+| Estructura | `CREATE FUNCTION ... RETURNS trigger` + `CREATE TRIGGER ... EXECUTE FUNCTION` | `CREATE TRIGGER ... AS BEGIN ... END` |
+| Momento | `BEFORE`, `AFTER`, `INSTEAD OF` (vistas) | `AFTER` (o `FOR`), `INSTEAD OF` |
+| Granularidad | `FOR EACH ROW` o `FOR EACH STATEMENT` | Siempre por sentencia |
+| Filas afectadas | `NEW`, `OLD`, o `REFERENCING NEW/OLD TABLE` | Tablas `inserted` y `deleted` |
+| Operación | `TG_OP` | `IF EXISTS (SELECT 1 FROM inserted)` / `deleted` |
+
+Más detalle y cuándo conviene usarlos: [`postgresql/10_triggers/README.md`](../postgresql/10_triggers/README.md).
 
 ## Herramientas
 
