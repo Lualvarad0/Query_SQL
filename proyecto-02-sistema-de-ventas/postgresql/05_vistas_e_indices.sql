@@ -1,6 +1,6 @@
 -- =====================================================================
--- PASO 5 · Vistas, índices y seguridad (PostgreSQL)
--- Equivalente de sqlserver/05_vistas_indices_y_seguridad.sql
+-- PASO 5 · Vistas e índices (PostgreSQL)
+-- Equivalente de sqlserver/05_vistas_e_indices.sql
 -- =====================================================================
 
 -- 5.1 Índices en llaves foráneas y fechas (PostgreSQL tampoco los crea solo)
@@ -35,15 +35,4 @@ GROUP BY p.idProducto, c.nombre;
 SELECT * FROM vw_historial_venta ORDER BY total DESC LIMIT 5;   -- T-SQL: SELECT TOP 5
 SELECT * FROM vw_ventas_por_producto ORDER BY ingresos DESC;
 
--- 5.3 Seguridad: hash de claves con la extensión pgcrypto (bcrypt, igual que usaría la API)
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-BEGIN;
-    ALTER TABLE Usuario ADD COLUMN claveHash TEXT;
-    UPDATE Usuario SET claveHash = crypt(clave, gen_salt('bf'));   -- bcrypt: la sal va dentro del hash
-
-    SELECT idUsuario, nombreCompleto,
-           CASE WHEN claveHash = crypt('123', claveHash) THEN 'Clave correcta' ELSE 'Clave incorrecta' END AS resultado
-    FROM Usuario WHERE correo = 'maria@example.com';
-ROLLBACK;
--- T-SQL: HASHBYTES('SHA2_256', sal + clave). bcrypt es mejor para claves porque es lento a propósito.
+-- La seguridad (claves con hash, permisos e inyección SQL) está en el paso 7: 07_seguridad.sql

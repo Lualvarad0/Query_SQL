@@ -8,7 +8,7 @@
 -- (PostgreSQL no tiene USE ni GO: cada archivo se corre conectado a una base.)
 -- =====================================================================
 
-DROP TABLE IF EXISTS DetalleVenta, Venta, NumeroDocumento, Producto, Categoria,
+DROP TABLE IF EXISTS ProductoProveedor, Proveedor, DetalleVenta, Venta, Cliente, NumeroDocumento, Producto, Categoria,
                      Usuario, MenuRol, Menu, Rol CASCADE;
 
 -- Seguridad ------------------------------------------------------------

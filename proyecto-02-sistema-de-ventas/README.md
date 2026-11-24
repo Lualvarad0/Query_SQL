@@ -1,9 +1,13 @@
-# Proyecto: Sistema de Ventas (Angular)
+# Proyecto 02 · Sistema de Ventas
 
 Base de datos `DBVENTA` del sistema de ventas hecho en Angular. Aquí la desarmamos
 pieza por pieza para aprender SQL con un proyecto real: qué guarda cada tabla, qué
-consulta hay detrás de cada pantalla de la app, y cómo mejorarla con procedimientos,
-vistas, índices y seguridad.
+consulta hay detrás de cada pantalla de la app, cómo relacionar clientes, vendedores y
+proveedores, cómo protegerla (reglas, permisos, inyección SQL) y qué errores aparecen
+cuando se hace lo que no se debe.
+
+> Si recién empiezas, haz antes el [Proyecto 01 · Lista de Tareas](../proyecto-01-lista-de-tareas/):
+> es más corto y muestra cómo una tabla suelta se convierte en un modelo relacionado.
 
 Todo está en **dos versiones**: `sqlserver/` (el motor original del proyecto) y
 `postgresql/`. Las dos versiones devuelven los mismos resultados.
@@ -14,16 +18,21 @@ Todo está en **dos versiones**: `sqlserver/` (el motor original del proyecto) y
 
 | Archivo | Qué es |
 |---|---|
-| `01_CREAR_BASE_DATOS_TABLAS.txt` | Script **original** del proyecto (sin cambios) |
-| `02_INSERTAR DATOS EN TABLAS.txt` | Datos **originales** del proyecto (sin cambios) |
-| `sqlserver/01_crear_base_y_tablas.sql` | Paso 1: el mismo modelo, con reglas (`NOT NULL`, `UNIQUE`, `CHECK`) y comentado |
+| `sqlserver/01_crear_base_y_tablas.sql` | Paso 1: el modelo del script original, con reglas (`NOT NULL`, `UNIQUE`, `CHECK`) y comentado |
 | `sqlserver/02_datos.sql` | Paso 2: los datos originales + usuarios de prueba + 24 ventas |
 | `sqlserver/03_consultas_por_pantalla.sql` | Paso 3: el SQL de cada pantalla de la app |
 | `sqlserver/04_procedimientos.sql` | Paso 4: procedimientos almacenados para la API |
-| `sqlserver/05_vistas_indices_y_seguridad.sql` | Paso 5: vistas, índices y claves con hash |
-| `sqlserver/06_soluciones.sql` | Paso 6: soluciones de los ejercicios |
-| `postgresql/` | Los mismos 6 pasos en PostgreSQL, más `instalar.sql` |
-| `ejercicios.sql` | 16 ejercicios sobre esta base (sirven para los dos motores) |
+| `sqlserver/05_vistas_e_indices.sql` | Paso 5: vistas e índices |
+| `sqlserver/06_relaciones.sql` | Paso 6: clientes, vendedores, jefes y proveedores (todos los tipos de relación) |
+| `sqlserver/07_seguridad.sql` | Paso 7: lo que el script original dejaba pasar, claves con hash, permisos e inyección SQL |
+| `sqlserver/08_errores_comunes.sql` | Paso 8: 14 errores que la base rechaza y 9 que acepta sin avisar |
+| `sqlserver/09_soluciones.sql` | Soluciones de los ejercicios |
+| `postgresql/` | Los mismos pasos en PostgreSQL, más `instalar.sql` (pasos 1 y 2) |
+| `ejercicios.sql` | 22 ejercicios sobre esta base (sirven para los dos motores) |
+
+> Los scripts originales del proyecto estaban en archivos `.txt`. Ya no hacen falta:
+> el paso 1 y el paso 2 son esos mismos scripts, ordenados y corregidos. Lo que el
+> original dejaba pasar se muestra en el paso 7.
 
 ---
 
@@ -67,6 +76,24 @@ No está escrita en el código de Angular.
 │ NumeroDocumento │   (una sola fila: el último número de venta usado)
 └─────────────────┘
 ```
+
+Después del **paso 6** se suman estas relaciones:
+
+```
+ Cliente 1 ───< Venta >─── 1 Usuario (vendedor)       Usuario 1 ───< Usuario (idJefe)
+   (opcional: NULL = consumidor final)                 (auto-relación: cada uno tiene un jefe)
+
+ Producto 1 ───< ProductoProveedor >─── 1 Proveedor
+                 (costo, diasEntrega, esPrincipal: datos de la PAREJA producto-proveedor)
+```
+
+| Tipo de relación | Dónde está en este proyecto |
+|---|---|
+| Uno a muchos obligatoria | `Rol → Usuario`, `Venta → DetalleVenta`, `Usuario → Venta` (vendedor) |
+| Uno a muchos opcional | `Cliente → Venta` (`idCliente` puede ser NULL), `Categoria → Producto` |
+| Muchos a muchos | `Menu ↔ Rol` con `MenuRol` |
+| Muchos a muchos con datos propios | `Producto ↔ Proveedor` con `ProductoProveedor` (costo, días de entrega) |
+| Auto-relación | `Usuario.idJefe → Usuario` |
 
 ### Tabla por tabla
 
@@ -116,7 +143,8 @@ No está escrita en el código de Angular.
 2. Abre `sqlserver/01_crear_base_y_tablas.sql` y ejecútalo con **F5**. Crea la base `DBVENTA`;
    si ya existe, la borra y la crea de nuevo.
 3. Haz lo mismo con `sqlserver/02_datos.sql`.
-4. Sigue con los pasos 3, 4 y 5 en orden.
+4. Sigue con los pasos 3 a 8 **en orden** (el 6 cambia tablas que usan el 7 y el 8).
+   Para empezar de cero, vuelve a correr el paso 1.
 
 Desde la terminal (Windows, autenticación de Windows):
 
@@ -128,9 +156,14 @@ sqlcmd -S . -E -i sqlserver\01_crear_base_y_tablas.sql,sqlserver\02_datos.sql
 
 ```bash
 createdb dbventa_app
-psql -d dbventa_app -f proyecto-VENTASANGULAR/postgresql/instalar.sql
-psql -d dbventa_app -f proyecto-VENTASANGULAR/postgresql/03_consultas_por_pantalla.sql
+psql -d dbventa_app -f proyecto-02-sistema-de-ventas/postgresql/instalar.sql
+psql -d dbventa_app -f proyecto-02-sistema-de-ventas/postgresql/03_consultas_por_pantalla.sql
+# ... y así con 04, 05, 06, 07 y 08, en orden
 ```
+
+El paso 7 crea **roles** (`ventas_rol_cajero`, `ventas_cajero1`...). En PostgreSQL los roles son
+de todo el servidor, por eso tu usuario necesita permiso para crear roles (el usuario
+`postgres` lo tiene).
 
 > Usa una base distinta (`dbventa_app`) a la de la ruta de aprendizaje (`dbventa`), porque
 > esa tiene una versión ampliada de estas tablas.
@@ -216,29 +249,118 @@ EXEC sp_RegistrarVenta
 Antes de guardar, el procedimiento valida tres cosas y lanza un error claro si falla
 alguna: que haya productos, que existan y estén activos, y que haya stock.
 
-### Paso 5 · Vistas, índices y seguridad (`05_vistas_indices_y_seguridad.sql`)
+### Paso 5 · Vistas e índices (`05_vistas_e_indices.sql`)
 
-**Aprendes:** `CREATE INDEX`, `sp_helpindex`, `CREATE VIEW`, `HASHBYTES`, `ALTER TABLE ADD`.
+**Aprendes:** `CREATE INDEX`, `sp_helpindex`, `CREATE VIEW`.
 
 - **Índices** en las llaves foráneas y en `Venta.fechaRegistro`. SQL Server no los crea
   solo, y sin ellos el historial y los reportes leen la tabla completa.
 - **Vistas**: `vw_HistorialVenta` (cada venta con cuántos productos y unidades tiene) y
-  `vw_VentasPorProducto` (ranking de productos, incluidos los que no se vendieron).
-- **Seguridad de claves**: la tabla original guarda la clave en texto (`'123'`). Si alguien
-  copia la base, ve todas las claves. El script muestra cómo guardar un **hash con sal**
-  y validar el login comparando hashes. Va dentro de una transacción que se deshace, para
-  no romper el login de la app. En la app real, el hash lo calcula la API (por ejemplo con BCrypt).
+  `vw_VentasPorProducto` (ranking de productos, incluidos los que no se vendieron). En el
+  paso 7 las vistas sirven también para dar permisos: el supervisor ve la vista, no las tablas.
 
-### Paso 6 · Ejercicios (`ejercicios.sql`)
+### Paso 6 · Relacionar más (`06_relaciones.sql`)
 
-16 ejercicios, cada uno con el resultado esperado. Soluciones en `sqlserver/06_soluciones.sql`
-y `postgresql/06_soluciones.sql`.
+**Aprendes:** `ALTER TABLE ADD ... REFERENCES`, relación opcional vs obligatoria, auto-relación,
+muchos a muchos con datos propios, índice único filtrado, `CHECK` con patrones.
+
+| Parte | Qué agrega | La idea importante |
+|---|---|---|
+| 6.1 | `Cliente` y `Venta.idCliente` | Relación **opcional**: `NULL` = consumidor final. El documento se valida con `CHECK` (cédula 10 dígitos, RUC 13, sin letras) |
+| 6.2 | `Venta.idUsuario` (vendedor) | Relación **obligatoria** en una tabla que ya tiene datos: columna NULL → llenarla → `NOT NULL` + FK |
+| 6.3 | `Usuario.idJefe` | **Auto-relación**, con un `CHECK` para que nadie sea su propio jefe |
+| 6.4 | `Proveedor` y `ProductoProveedor` | Muchos a muchos **con datos propios** (costo, días de entrega) y un **índice único filtrado**: un solo proveedor principal por producto |
+| 6.5 | `sp_RegistrarVenta` | Ahora recibe `@idUsuario` y `@idCliente`, y valida cantidades mayores que cero |
+| 6.6 | Consultas | Historial con cliente y vendedor, compras por cliente, organigrama, margen por proveedor |
+
+Fíjate en 6.6.1: si unes `Venta` con `Cliente` con `INNER JOIN`, **desaparecen las 6 ventas a
+consumidor final**. En una relación opcional casi siempre va `LEFT JOIN`.
+
+### Paso 7 · Seguridad (`07_seguridad.sql`)
+
+**Aprendes:** por qué la seguridad empieza en el `CREATE TABLE`, hash con sal,
+`CREATE ROLE`, `GRANT`, `DENY`, permisos por columna, `EXECUTE AS`, inyección SQL.
+
+**7.1 · Lo que el script original dejaba pasar.** Se recrea la tabla `Usuario` del script
+original en una tabla temporal y se le meten datos absurdos: dos usuarios con el mismo
+correo y un usuario sin nombre, sin rol y sin clave. Los acepta todos. Por eso el paso 1
+agregó `NOT NULL`, `UNIQUE` y `CHECK`.
+
+**7.2 · Claves con hash.** La base guarda `clave = '123'`. Si alguien copia la base, ve todas
+las claves. Se muestra cómo guardar un **hash con sal** (huella irreversible, distinta por
+usuario) y comparar hashes en el login. Se deshace al final para no romper la pantalla de
+login. En la app real lo hace la API con BCrypt.
+
+**7.3 · Mínimo privilegio.** La API nunca debe conectarse como `sa`. Se crean dos roles:
+
+| Rol | Puede | No puede |
+|---|---|---|
+| `rol_cajero` | Ver productos y clientes, crear clientes, vender con `sp_RegistrarVenta` | Cambiar precios, borrar ventas, leer claves |
+| `rol_supervisor` | Ver las vistas de historial, los reportes y la lista de usuarios | Ver la columna `clave` (`DENY` por columna), leer las tablas de ventas directamente |
+
+Lo interesante: el cajero **no** tiene permiso de escribir en `Venta`, pero sí puede vender,
+porque el procedimiento lo hace por él. Así solo se pueden cambiar datos de la forma que el
+procedimiento permite. En SQL Server esto se llama *encadenamiento de propiedad*; en PostgreSQL
+se logra con `SECURITY DEFINER`.
+
+**7.4 · Inyección SQL en el login.** Un procedimiento arma el SQL pegando el correo y la clave.
+Escribiendo `' OR 1=1 --` como correo se entra **como Administrador sin saber la clave**. La
+versión con parámetros devuelve 0 filas con el mismo ataque.
+
+### Paso 8 · Errores comunes (`08_errores_comunes.sql`)
+
+**Aprendes:** a leer mensajes de error, `TRY...CATCH`, `XACT_STATE()`, y a reconocer las
+consultas que "funcionan" pero dan números equivocados.
+
+**Parte A · La base te protege** (cada intento muestra su número de error):
+
+| # | Intento | Error SQL Server | Error PostgreSQL |
+|---|---|---|---|
+| A1 | Vender un producto que no existe | 547 (FK) | 23503 |
+| A2 | Borrar una categoría con productos | 547 (FK) | 23503 |
+| A3 | Dejar el stock en negativo | 547 (CHECK) | 23514 |
+| A4 | Precio cero | 547 (CHECK) | 23514 |
+| A5 | Dos usuarios con el mismo correo | 2627 (UNIQUE) | 23505 |
+| A6 | Usuario sin rol | 515 (NOT NULL) | 23502 |
+| A7 | Cédula con letras | 547 (CHECK) | 23514 |
+| A8 | Venta sin vendedor | 515 (NOT NULL) | 23502 |
+| A9 | Número de factura repetido | 2627 (UNIQUE) | 23505 |
+| A10 | Dos proveedores principales para un producto | 2601 (índice único filtrado) | 23505 |
+| A11 | Borrar un cliente con ventas | 547 (FK) | 23503 |
+| A12 | Venta a un cliente que no existe (dentro del procedimiento) | 547, y la transacción se deshace entera | 23503 |
+| A13 | Convertir `'12abc'` a número | 245 | 22P02 |
+| A14 | Borrar la tabla `Producto` | 3726 | 2BP01 |
+
+A12 enseña algo extra: cuando el error ocurre **dentro de una transacción**, el `CATCH`
+tiene que hacer `ROLLBACK` (se revisa con `XACT_STATE()`); si no, SQL Server avisa al final
+del lote que quedó una transacción sin cerrar.
+
+**Parte B · La base NO te avisa** (el resultado sale, pero está mal):
+
+| # | Error | Mal | Bien |
+|---|---|---|---|
+| B1 | Sumar `Venta.total` después de unir con `DetalleVenta` | 99 530.00 | 53 520.00 |
+| B2 | `INNER JOIN` con `Cliente` (relación opcional) | 18 ventas | 24 ventas |
+| B3 | `NOT IN` con una subconsulta que trae `NULL` | 0 clientes | 1 cliente |
+| B4 | `= NULL` en vez de `IS NULL` | 0 | 6 |
+| B5 | Calcular ventas pasadas con el precio actual | 6 000.00 | 5 000.00 |
+| B6 | Dinero en `FLOAT`: 0.1 + 0.2 = 0.3 | distinto | igual con `DECIMAL` |
+| B7 | División entera | 1 | 1.5 |
+| B8 | `UPDATE` sin `WHERE` | 15 productos cambiados | 1 |
+| B9 | Filtrar la tabla derecha en el `WHERE` de un `LEFT JOIN` | 5 categorías | 6 |
+
+### Paso 9 · Ejercicios (`ejercicios.sql`)
+
+22 ejercicios, cada uno con el resultado esperado. Soluciones en `sqlserver/09_soluciones.sql`
+y `postgresql/09_soluciones.sql`.
 
 | Nivel | Ejercicios | Ejemplos |
 |---|---|---|
 | JOINs básicos | 1–5 | Productos con categoría, menús por rol, quién puede ver "Reportes" |
 | Agrupaciones y subconsultas | 6–13 | Ventas por día y por semana, porcentaje por tipo de pago, top 5, productos sin ventas |
 | Avanzados | 14–16 | Porcentaje de cada línea en su venta (ventanas), productos que se compran juntos, stock inicial |
+| Relaciones del paso 6 | 17–21 | Compras por cliente, clientes sin compras, ventas por vendedor con su jefe, cadena de mando (CTE recursiva), ahorro por proveedor |
+| Arregla la consulta | 22 | Un total inflado por un `JOIN` que repite filas |
 
 ---
 
@@ -259,6 +381,13 @@ y `postgresql/06_soluciones.sql`.
 | Procedimiento que devuelve filas | `PROCEDURE` con un `SELECT` | `FUNCTION ... RETURNS TABLE` |
 | Error controlado | `THROW` y `BEGIN TRY / BEGIN CATCH` | `RAISE EXCEPTION` y `EXCEPTION WHEN` |
 | Hash de clave | `HASHBYTES('SHA2_256', sal + clave)` | `crypt(clave, gen_salt('bf'))` (extensión pgcrypto) |
+| Validar solo dígitos | `documento NOT LIKE '%[^0-9]%'` | `documento ~ '^[0-9]+$'` (expresión regular) |
+| Índice único sobre algunas filas | Índice **filtrado** `... WHERE esPrincipal = 1` | Índice **parcial** `... WHERE esPrincipal` |
+| Quitar un permiso a una columna | `DENY SELECT ON Usuario (clave)` | No hay `DENY`: se hace `GRANT` solo de las columnas permitidas |
+| Probar como otro usuario | `EXECUTE AS USER = 'x'` ... `REVERT` | `SET ROLE x` ... `RESET ROLE` |
+| Procedimiento con permisos de su dueño | Automático (encadenamiento de propiedad) | `SECURITY DEFINER` |
+| Quién puede ejecutar una función nueva | Nadie, hasta que se da `GRANT EXECUTE` | **Todos** (`PUBLIC`): hay que hacer `REVOKE` |
+| Convertir sin error | `TRY_CAST('12abc' AS INT)` → NULL | No existe: se valida antes con `~` |
 
 ---
 
@@ -267,10 +396,10 @@ y `postgresql/06_soluciones.sql`.
 Estas mejoras cambian las tablas, así que la app también tendría que cambiar. Varias ya
 están hechas en la base ampliada de la ruta ([`postgresql/00_base_de_datos`](../postgresql/00_base_de_datos/)):
 
+Vendedor (`Venta.idUsuario`), clientes y proveedores ya se agregaron en el paso 6. Faltan:
+
 | Mejora | Para qué | Dónde verla |
 |---|---|---|
-| `Venta.idUsuario` | Saber qué vendedor hizo cada venta | Ruta, módulo 04 |
-| Tabla `Cliente` y `Venta.idCliente` | Historial por cliente, facturas con datos | Ruta, módulo 04 |
 | `Venta.estado` (PAGADA / ANULADA) | Anular sin borrar | Ruta, módulos 03 y 10 |
 | `subtotal` e `impuesto` (IVA 15 %) | Comprobantes reales | Ruta, módulo 00 |
 | Trigger que descuenta stock | Que el stock baje aunque la venta no venga de la app | Ruta, módulo 10 |

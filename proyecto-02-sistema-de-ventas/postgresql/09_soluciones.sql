@@ -1,6 +1,6 @@
 -- =====================================================================
--- PASO 6 · Soluciones de ../ejercicios.sql (PostgreSQL)
--- La versión SQL Server está en ../sqlserver/06_soluciones.sql
+-- SOLUCIONES de ../ejercicios.sql (PostgreSQL)
+-- La versión SQL Server está en ../sqlserver/09_soluciones.sql
 -- =====================================================================
 
 -- 1. Lista los productos con el nombre de su categoría, del más caro al más barato.
@@ -116,3 +116,63 @@ FROM Producto p
 LEFT JOIN DetalleVenta d ON d.idProducto = p.idProducto
 GROUP BY p.idProducto, p.nombre, p.stock
 ORDER BY p.idProducto;
+
+-- =====================================================================
+-- Ejercicios 17 a 22 (necesitan el paso 6)
+-- =====================================================================
+
+-- 17. Compras por cliente, incluidos los que nunca compraron.
+SELECT c.nombre, COUNT(v.idVenta) AS compras, COALESCE(SUM(v.total), 0) AS total
+FROM Cliente c
+LEFT JOIN Venta v ON v.idCliente = c.idCliente
+GROUP BY c.idCliente, c.nombre
+ORDER BY total DESC;
+
+-- 18. Clientes que nunca compraron (NOT IN falla por los NULL de Venta.idCliente).
+SELECT c.idCliente, c.nombre
+FROM Cliente c
+WHERE NOT EXISTS (SELECT 1 FROM Venta v WHERE v.idCliente = c.idCliente);
+
+-- 19. Ventas por vendedor con su jefe.
+SELECT u.nombreCompleto AS vendedor, r.nombre AS rol,
+       COUNT(v.idVenta) AS ventas, SUM(v.total) AS total,
+       COALESCE(j.nombreCompleto, '(sin jefe)') AS jefe
+FROM Usuario u
+JOIN Rol r          ON r.idRol = u.idRol
+JOIN Venta v        ON v.idUsuario = u.idUsuario
+LEFT JOIN Usuario j ON j.idUsuario = u.idJefe
+GROUP BY u.idUsuario, u.nombreCompleto, r.nombre, j.nombreCompleto
+ORDER BY total DESC;
+
+-- 20. Cadena de mando (CTE recursiva).
+WITH RECURSIVE cadena AS (
+    SELECT idUsuario AS origen, idJefe, nombreCompleto::TEXT AS ruta
+    FROM Usuario
+    UNION ALL
+    SELECT c.origen, j.idJefe, c.ruta || ' > ' || j.nombreCompleto
+    FROM cadena c
+    JOIN Usuario j ON j.idUsuario = c.idJefe
+)
+SELECT origen AS idUsuario, ruta
+FROM cadena
+WHERE idJefe IS NULL
+ORDER BY origen;
+
+-- 21. Productos con más de un proveedor: principal vs el más barato.
+SELECT p.nombre,
+       MAX(pp.costo) FILTER (WHERE pp.esPrincipal) AS costo_principal,
+       MIN(pp.costo) AS costo_mas_bajo,
+       MAX(pp.costo) FILTER (WHERE pp.esPrincipal) - MIN(pp.costo) AS ahorro_por_unidad
+FROM Producto p
+JOIN ProductoProveedor pp ON pp.idProducto = p.idProducto
+GROUP BY p.idProducto, p.nombre
+HAVING COUNT(*) > 1
+ORDER BY ahorro_por_unidad DESC;
+
+-- 22. EXISTS en vez de JOIN para no repetir (ni sumar dos veces) las ventas con dos teclados. 19310.00
+SELECT SUM(v.total) AS total
+FROM Venta v
+WHERE EXISTS (SELECT 1
+              FROM DetalleVenta d
+              JOIN Producto p ON p.idProducto = d.idProducto
+              WHERE d.idVenta = v.idVenta AND p.idCategoria = 3);

@@ -1,7 +1,7 @@
 /* =====================================================================
    PASO 1 · Crear la base DBVENTA y sus tablas (SQL Server)
 
-   Es el mismo modelo del script original 01_CREAR_BASE_DATOS_TABLAS.txt,
+   Es el mismo modelo del script original del proyecto (antes en un .txt),
    con tres mejoras que no cambian las columnas que usa la app:
      - NOT NULL / UNIQUE / CHECK donde un dato vacío o repetido sería un error
      - nombres para las llaves (así los mensajes de error se entienden)

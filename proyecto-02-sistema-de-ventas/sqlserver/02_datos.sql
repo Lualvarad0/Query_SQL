@@ -1,6 +1,6 @@
 /* =====================================================================
    PASO 2 · Datos de ejemplo
-   Los datos del script original 02_INSERTAR DATOS EN TABLAS.txt, más:
+   Los datos originales del proyecto (antes en un .txt), más:
      - 2 usuarios (un empleado y un supervisor) para probar el login por rol
      - 24 ventas de noviembre 2026 con su detalle, para que el dashboard,
        el historial y los reportes tengan algo que mostrar
